@@ -37,7 +37,7 @@ npx skills add ZyoHuang/siyuan-notes
 | 其他 Other | 克隆到对应运行时的 `skills/` 目录 |
 
 ```bash
-git clone https://github.com/ZyoHuang/siyuan-notes ~/.claude/skills/siyuan-notes
+git clone https://github.com/ZyoHuang/siyuan-notes <对应运行时的 skills 目录>
 ```
 
 ### 方式三：直接引用
