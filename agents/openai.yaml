@@ -1,0 +1,7 @@
+interface:
+  display_name: "SiYuan Notes"
+  short_description: "查询、整理、追加并复查思源笔记、收集箱、数据库及官方内核接口"
+  default_prompt: "使用 $siyuan-notes 通过当前 CLI 或官方内核 API 安全查询、整理和维护我的思源知识库。"
+
+policy:
+  allow_implicit_invocation: true
