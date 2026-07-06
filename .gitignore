@@ -1,3 +1,11 @@
 .DS_Store
 tmp/
 *.log
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.*
