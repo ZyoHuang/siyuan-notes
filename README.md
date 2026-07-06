@@ -4,6 +4,8 @@ An agent skill for using [SiYuan](https://github.com/siyuan-note/siyuan) as a pe
 
 ## 安装 Installation
 
+> 安装方式参考自 [nuwa-skill](https://github.com/alchaincyf/nuwa-skill)。
+
 ### 方式一：一行命令（推荐，跨运行时）
 
 直接告诉你的 AI agent：
