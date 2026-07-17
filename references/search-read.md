@@ -1,6 +1,6 @@
 # 只读搜索与阅读工作流
 
-用于查找、回忆、比较、总结本地 SiYuan 笔记。先读 `references/cli.md` 并完成实时 CLI 校验。
+用于查找、回忆、比较、总结本地 SiYuan 笔记。先读 `references/cli.md` 和当前平台 reference，并完成实时 CLI 校验。
 
 ## 检索策略
 
@@ -12,34 +12,29 @@
 
 ## 输出裁剪
 
-搜索 JSON 往往很宽。默认只保留必要字段：
+搜索 JSON 往往很宽。默认使用小结果页：
 
-```bash
-siyuan search 'keyword' --page-size 20 -w "$SIYUAN_WORKSPACE" --format json
+```text
+<binary> search "keyword" --page-size 20 -w "<workspace>" --format json
 ```
 
-若环境允许 `jq`，优先投影字段再交给模型阅读：
+按当前平台 reference 的 JSON 解析方式投影后再交给模型阅读。优先保留：
 
-```bash
-siyuan search 'keyword' --page-size 20 -w "$SIYUAN_WORKSPACE" --format json |
-  jq '{matchedBlockCount, matchedRootCount, pageCount,
-       blocks: [.blocks[] | {
-         id, rootID, parentID, hPath, type, subType,
-         markdown, fcontent,
-         updated: .ial.updated
-       }]}'
-```
+- 汇总：`matchedBlockCount`、`matchedRootCount`、`pageCount`
+- 块：`id`、`rootID`、`parentID`、`hPath`、`type`、`subType`
+- 内容：`markdown` 或必要的 `fcontent`
+- 时间：`ial.updated`
 
 标题明确时可先限制文档类型：
 
-```bash
-siyuan search 'Exact Title' --type document --page-size 20 -w "$SIYUAN_WORKSPACE" --format json
+```text
+<binary> search "Exact Title" --type document --page-size 20 -w "<workspace>" --format json
 ```
 
 需要多关键词备选时使用正则，但保持结果页小：
 
-```bash
-siyuan search 'term1|term2|term3' --method 3 --page-size 20 -w "$SIYUAN_WORKSPACE" --format json
+```text
+<binary> search "term1|term2|term3" --method 3 --page-size 20 -w "<workspace>" --format json
 ```
 
 ## 阅读与回答

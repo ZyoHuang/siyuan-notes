@@ -23,23 +23,22 @@ SiYuan 数据库即属性视图（attribute view）：
 5. 用 `/api/av/getAttributeViewPrimaryKeyValues` 做分页主键查找。
 6. 修改 filter 或 sort 配置前用 `/api/av/getAttributeViewFilterSort`。
 
-读示例：
+按当前平台 reference 的 HTTP 模式执行读示例；只有内核启用访问控制时才添加认证头：
 
-```bash
-curl --silent --show-error --max-time 30 \
-  -X POST "${SIYUAN_BASE_URL:-http://127.0.0.1:6806}/api/av/renderAttributeView" \
-  -H "Authorization: Token ${SIYUAN_TOKEN}" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "id":"AV_ID",
-    "blockID":"BLOCK_ID",
-    "viewID":"",
-    "page":1,
-    "pageSize":50,
-    "query":"",
-    "groupPaging":{},
-    "createIfNotExist":false
-  }'
+```http
+POST <base-url>/api/av/renderAttributeView
+Content-Type: application/json
+
+{
+  "id":"AV_ID",
+  "blockID":"BLOCK_ID",
+  "viewID":"",
+  "page":1,
+  "pageSize":50,
+  "query":"",
+  "groupPaging":{},
+  "createIfNotExist":false
+}
 ```
 
 对游离数据库，省略 `blockID`。镜像报告 `data.isMirror:true`，应视为只读。

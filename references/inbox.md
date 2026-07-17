@@ -2,65 +2,51 @@
 
 ## 状态与边界
 
-- 最后校验的 CLI 版本：`3.7.1`（`2026-07-06`）
-- HTTP 路由最后校验的内核版本：`3.7.0`（`2026-07-02`）
+- 最后校验的 CLI 版本：`3.7.2`（`2026-07-17`）
+- HTTP 路由最后校验的实时内核版本：`3.7.2`（`2026-07-17`）
 - CLI 提供 `inbox list`、`inbox get` 和 `inbox convert`。
 - Inbox 存储云端速记（cloud shorthands）。本地内核用当前登录的 SiYuan 账号把请求代理到 SiYuan 云服务。
 - Inbox 条目不是本地文档，不能通过工作区 SQL、文档列表或 `daily note` 路径发现。
-- 这些路由存在于内核源码，但未在公开 `API.md` 中文档化。视为内部路由，升级后重新核对实时行为。
+- 这些 HTTP 路由存在于内核源码，但未在公开 `API.md` 中文档化。视为内部路由，升级后重新核对实时行为。
 
 ## 前置条件
 
-1. 遵循 `SKILL.md` 和 【参考：CLI】 中的 CLI 校验工作流。
-2. 检测已有内核监听器。桌面默认常为 `127.0.0.1:6806`，但有证据显示其它值时不要假设端口。
-3. 只读探测内核：
-
-```bash
-curl --silent --show-error --max-time 10 \
-  -X POST http://127.0.0.1:6806/api/system/version \
-  -H 'Content-Type: application/json' \
-  -d '{}'
-```
-
-4. 若本地访问被执行沙箱阻止，请求只读 localhost 访问的批准。SiYuan 桌面端已在监听时不要启动第二个内核。
-5. 若启用了内核访问认证，添加 `Authorization: Token ${SIYUAN_TOKEN}`。绝不在命令输出或总结中打印、持久化或包含令牌。
-6. 预期云请求需要已登录的 SiYuan 账号和可用网络。
+1. 遵循 `SKILL.md` 和 【参考：CLI】 的平台分流与 CLI 校验工作流。
+2. CLI 直接访问工作区；使用 `inbox list/get/convert` 时不要求 6806 内核运行。
+3. 只有 CLI 不可用、缺少所需字段或响应不足以完成只读整理时，才按当前平台 reference 探测已有内核并调用 HTTP 回退。
+4. 本地访问若被执行沙箱阻止，请求只读 localhost 访问批准。SiYuan 桌面端已监听时不要启动第二个内核。
+5. 内核启用访问认证时添加 `Authorization: Token <SIYUAN_TOKEN>`。绝不在命令输出或总结中打印、持久化或包含令牌。
+6. 云请求需要已登录的 SiYuan 账号和可用网络。
 
 ## CLI 工作流
 
 读取列表与单条详情：
 
-```bash
-siyuan inbox list --page 1 -w "$SIYUAN_WORKSPACE" --format json
-siyuan inbox get --id shorthand-id -w "$SIYUAN_WORKSPACE" --format json
+```text
+<binary> inbox list --page 1 -w "<workspace>" --format json
+<binary> inbox get --id shorthand-id -w "<workspace>" --format json
 ```
 
 转换条目会写入本地笔记。先 dry-run，并在未获得删除授权时显式关闭来源删除：
 
-```bash
-siyuan inbox convert --ids shorthand-id --notebook notebook-id --path /Inbox --remove-after=false --dry-run -w "$SIYUAN_WORKSPACE" --format json
-siyuan inbox convert --ids shorthand-id --notebook notebook-id --path /Inbox --remove-after=false -w "$SIYUAN_WORKSPACE" --format json
+```text
+<binary> inbox convert --ids shorthand-id --notebook notebook-id --path /Inbox --remove-after=false --dry-run -w "<workspace>" --format json
+<binary> inbox convert --ids shorthand-id --notebook notebook-id --path /Inbox --remove-after=false -w "<workspace>" --format json
 ```
 
-3.7.1 中 `--remove-after` 的默认值是 `true`。未经用户明确授权，不要省略该选项，也不要传 `true`。
+3.7.2 中 `--remove-after` 的默认值是 `true`。未经用户明确授权，不要省略该选项，也不要传 `true`。
 
 ## HTTP 只读回退
 
-当实时 CLI 不可用、缺少所需字段或响应不足以完成只读整理时，再使用以下内核路由。
+按照当前平台 reference 的 HTTP 模式发送请求，同时检查 HTTP 状态和 SiYuan 顶层 `code`。
 
 列出一页：
 
-```bash
-curl --silent --show-error --max-time 30 \
-  -X POST http://127.0.0.1:6806/api/inbox/getShorthands \
-  -H 'Content-Type: application/json' \
-  -d '{"page":1}'
-```
+```http
+POST <base-url>/api/inbox/getShorthands
+Content-Type: application/json
 
-请求体：
-
-```json
-{"page": 1}
+{"page":1}
 ```
 
 观察到的列表响应是嵌套的，因为本地内核返回云端结果：
@@ -84,41 +70,24 @@ curl --silent --show-error --max-time 30 \
 }
 ```
 
-从第 1 页读 `paginationPageCount` 并取回所有剩余页。保持输出紧凑，因为 `shorthandContent` 可能包含完整剪藏文章和大段渲染 HTML：
+同时检查本地信封 `code` 和嵌套云端信封 `data.code`。从第 1 页读 `data.data.pagination.paginationPageCount`，再取回所有剩余页。按当前平台 reference 的 JSON 方式把每条记录投影为：
 
-```bash
-curl --silent --show-error --max-time 30 \
-  -X POST http://127.0.0.1:6806/api/inbox/getShorthands \
-  -H 'Content-Type: application/json' \
-  -d '{"page":1}' |
-  jq '.data.data | {
-    pagination,
-    items: [.shorthands[] | {
-      oId,
-      hCreated,
-      shorthandTitle,
-      shorthandURL,
-      shorthandDesc,
-      shorthandMdPreview: ((.shorthandMd // "")
-        | gsub("[\\r\\n\\t]+"; " ")
-        | .[0:500])
-    }]
-  }'
-```
+- `oId`
+- `hCreated`
+- `shorthandTitle`
+- `shorthandURL`
+- `shorthandDesc`
+- `shorthandMdPreview`：把 `shorthandMd` 换行/制表符压成空格后截取前 500 字符
+
+不要把 `shorthandContent` 或完整剪藏文章发回模型。
 
 按 `oId` 读单条：
 
-```bash
-curl --silent --show-error --max-time 30 \
-  -X POST http://127.0.0.1:6806/api/inbox/getShorthand \
-  -H 'Content-Type: application/json' \
-  -d '{"id":"ENTRY_ID"}'
-```
+```http
+POST <base-url>/api/inbox/getShorthand
+Content-Type: application/json
 
-请求体：
-
-```json
-{"id": "ENTRY_ID"}
+{"id":"ENTRY_ID"}
 ```
 
 详情对象直接返回在顶层 `data`。常见字段：

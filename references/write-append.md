@@ -1,6 +1,6 @@
 # 写入、追加与校验工作流
 
-用于把内容记录、整理或追加到 SiYuan 本地笔记。先读 `references/cli.md` 和 `references/search-read.md`。
+用于把内容记录、整理或追加到 SiYuan 本地笔记。先读 `references/cli.md`、`references/search-read.md` 和当前平台 reference。
 
 ## 目标选择
 
@@ -21,19 +21,19 @@
 
 用实时帮助确认当前 CLI 参数。若支持 dry-run，先 dry-run：
 
-```bash
-siyuan block append --parent block-id --file tmp/addition.md --dry-run -w "$SIYUAN_WORKSPACE" --format json
-siyuan block append --parent block-id --file tmp/addition.md -w "$SIYUAN_WORKSPACE" --format json
+```text
+<binary> block append --parent block-id --file "<temporary-markdown>" --dry-run -w "<workspace>" --format json
+<binary> block append --parent block-id --file "<temporary-markdown>" -w "<workspace>" --format json
 ```
 
 仅在需要时新建文档：
 
-```bash
-siyuan document create --notebook notebook-id --title 'Title' --path /parent/path --markdown 'Initial content' --dry-run -w "$SIYUAN_WORKSPACE" --format json
-siyuan document create --notebook notebook-id --title 'Title' --path /parent/path --markdown 'Initial content' -w "$SIYUAN_WORKSPACE" --format json
+```text
+<binary> document create --notebook notebook-id --title "Title" --path /parent/path --markdown "Initial content" --dry-run -w "<workspace>" --format json
+<binary> document create --notebook notebook-id --title "Title" --path /parent/path --markdown "Initial content" -w "<workspace>" --format json
 ```
 
-当工作区或 SiYuan 运行时元数据在当前可写项目之外时，请求环境所需批准。绝不要直接编辑 `.sy` 文件。
+通过当前平台 reference 的变量和参数传递方式替换占位符，不要把 `<binary>`、`<workspace>` 或 `<temporary-markdown>` 原样传给 CLI。当工作区或 SiYuan 运行时元数据在当前可写项目之外时，请求环境所需批准。绝不要直接编辑 `.sy` 文件。
 
 ## 校验与清理
 
