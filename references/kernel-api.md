@@ -18,38 +18,38 @@
 - `/api/asset/upload` 和 `/api/file/putFile` 用 multipart form data。
 - `/api/file/getFile` 在 HTTP `200` 时返回原始文件字节；错误用 HTTP `202` 加 JSON body。
 - 正常 JSON 信封：`{"code":0,"msg":"","data":...}`。任何非零 `code` 视为失败。
-- 配置访问控制时的认证头：`Authorization: Token ${SIYUAN_TOKEN}`。把令牌保存在进程环境或经批准的密钥源中；绝不在 Skill 或工作区中回显、记录或保存它。
+- 配置访问控制时的认证头：`Authorization: Token <SIYUAN_TOKEN>`。把令牌保存在进程环境或经批准的密钥源中；绝不在 Skill 或工作区中回显、记录或保存它。
 
-只读探测：
+只有确定需要 HTTP API 后，才按当前平台 reference 的 HTTP 模式执行只读探测：
 
-```bash
-curl --silent --show-error --max-time 10 \
-  -X POST http://127.0.0.1:6806/api/system/version \
-  -H 'Content-Type: application/json' \
-  -d '{}'
+```http
+POST <base-url>/api/system/version
+Content-Type: application/json
+
+{}
 ```
 
 带认证的 JSON 模式：
 
-```bash
-curl --silent --show-error --max-time 30 \
-  -X POST "${SIYUAN_BASE_URL:-http://127.0.0.1:6806}/api/block/getBlockKramdown" \
-  -H "Authorization: Token ${SIYUAN_TOKEN}" \
-  -H 'Content-Type: application/json' \
-  -d '{"id":"BLOCK_ID"}'
+```http
+POST <base-url>/api/block/getBlockKramdown
+Authorization: Token <SIYUAN_TOKEN>
+Content-Type: application/json
+
+{"id":"BLOCK_ID"}
 ```
 
-仅当访问控制需要且令牌已通过经批准来源可用时，才添加认证头。
+仅当访问控制需要且令牌已通过经批准来源可用时，才添加认证头。Windows 用 `references/platform-windows.md` 的 `Invoke-RestMethod` 模式；macOS 用 `references/platform-macos.md` 的 `curl` 模式。
 
 ## 选择工作流
 
-1. 运行 `SKILL.md` 工作流要求的 CLI 检测、版本、根帮助和相关命令帮助。
-2. 检测已有内核监听器并探测 `/api/system/version`。不要在 SiYuan 桌面端旁边启动第二个内核。
-3. 当 CLI 暴露同一操作时优先用 CLI，尤其是可用 dry-run 的普通笔记写入。
-4. 对 CLI 缺失或建模不够直接的能力用官方 HTTP API，如属性视图、原始导出、模板和结构化路径转换。
+1. 运行 `SKILL.md` 工作流要求的平台分流、CLI 检测、版本、根帮助和相关命令帮助。
+2. 当 CLI 暴露同一操作时优先用 CLI，尤其是可用 dry-run 的普通笔记写入。CLI-only 工作流不探测 6806。
+3. 仅当 CLI 缺失所需能力或建模不够直接时选择官方 HTTP API，如属性视图、原始导出、模板和结构化路径转换。
+4. 确定需要 HTTP 后，按当前平台 reference 检测已有内核并探测 `/api/system/version`。不要在 SiYuan 桌面端旁边启动第二个内核。
 5. 任何变更前用最近的读端点读取目标。
 6. 对照实时响应校验每个笔记本 ID、文档路径、块 ID 和数据库标识符。
-7. 每次执行一个有界变更，检查 `code`，然后通过重读目标校验。
+7. 每次执行一个有界变更，检查 HTTP 状态和顶层 `code`，然后通过重读目标校验。
 
 ## 标识符
 
