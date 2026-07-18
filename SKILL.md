@@ -1,6 +1,6 @@
 ---
 name: siyuan-notes
-description: 通过 Windows 或 macOS 上已安装的 SiYuan CLI 和按需使用的本地内核 HTTP API，把 SiYuan（思源笔记）作为用户默认的个人笔记系统。用于搜索、回忆、交叉引用、总结、记录、更新和整理笔记；查询云端 Inbox/收集箱；操作笔记本、文档、块、属性、导出、模板、文件、SQL 以及结构化数据库/属性视图。当用户提到"我的笔记"、"笔记里"、"查下笔记"、"之前记过吗"、"记录到笔记"、"记到笔记"、"整理进笔记"、"收集箱"、Inbox、"知识库"、SiYuan/思源、SiYuan API、kernel API、database/属性视图，或显式调用 $siyuan-notes 时使用。每次工作流开始前先识别平台并校验 CLI；只有任务确实需要 HTTP API 时才校验运行中的内核。除非用户明确要求把内容写入个人知识库，否则不要用于普通仓库文档。
+description: 通过 Windows、macOS 或 Linux 上已安装的 SiYuan CLI 和按需使用的本地内核 HTTP API，把 SiYuan（思源笔记）作为用户默认的个人笔记系统。用于搜索、回忆、交叉引用、总结、记录、更新和整理笔记；查询云端 Inbox/收集箱；操作笔记本、文档、块、属性、导出、模板、文件、SQL 以及结构化数据库/属性视图。当用户提到"我的笔记"、"笔记里"、"查下笔记"、"之前记过吗"、"记录到笔记"、"记到笔记"、"整理进笔记"、"收集箱"、Inbox、"知识库"、SiYuan/思源、SiYuan API、kernel API、database/属性视图，或显式调用 $siyuan-notes 时使用。每次工作流开始前先识别平台并校验 CLI；只有任务确实需要 HTTP API 时才校验运行中的内核。除非用户明确要求把内容写入个人知识库，否则不要用于普通仓库文档。
 ---
 
 # SiYuan Notes（思源笔记）
@@ -13,7 +13,8 @@ description: 通过 Windows 或 macOS 上已安装的 SiYuan CLI 和按需使用
 
 - Windows：完整读取 `references/platform-windows.md`，用 PowerShell 语法执行命令。
 - macOS：完整读取 `references/platform-macos.md`，用 POSIX shell 语法执行命令。
-- 每次工作流只读取与当前主机匹配的一个平台 reference。不要在 Windows 上运行 macOS 示例，也不要在 macOS 上运行 PowerShell 示例。
+- Linux：完整读取 `references/platform-linux.md`，用 POSIX shell 语法执行命令。
+- 每次工作流只读取与当前主机匹配的一个平台 reference，不要混用其它平台的路径或 shell 示例。
 - 其它平台不在当前兼容性承诺内；停止并说明未验证平台，不要猜测安装路径或 shell 语法。
 
 ## 按需读取路由

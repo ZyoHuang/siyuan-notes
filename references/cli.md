@@ -11,6 +11,7 @@
 
 - Windows：`references/platform-windows.md`
 - macOS：`references/platform-macos.md`
+- Linux：`references/platform-linux.md`
 
 然后用平台 reference 解析出的绝对路径执行：
 
